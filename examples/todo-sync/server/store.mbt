@@ -1,16 +1,16 @@
 ///|
 pub(all) struct ServerStore {
   mut seq : Int
-  mut state : @cumulo.AppState
+  mut state : @shared.AppState
 } derive(Debug)
 
 ///|
-pub fn ServerStore::new(initial_state : @cumulo.AppState) -> ServerStore {
+pub fn ServerStore::new(initial_state : @shared.AppState) -> ServerStore {
   { seq: 0, state: initial_state }
 }
 
 ///|
-pub fn ServerStore::state(self : ServerStore) -> @cumulo.AppState {
+pub fn ServerStore::state(self : ServerStore) -> @shared.AppState {
   self.state
 }
 

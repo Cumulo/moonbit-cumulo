@@ -1,6 +1,5 @@
 import {
   "moonbitlang/core/json" @json,
-  "tiye/cumulo" @cumulo,
   "tiye/cumulo/recollect" @recollect,
   "tiye/cumulo/examples/todo-sync/server" @server,
   "tiye/cumulo/examples/todo-sync/shared" @shared,

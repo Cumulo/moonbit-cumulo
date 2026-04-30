@@ -1,16 +1,16 @@
 ///|
 pub(all) struct ClientStore {
   mut seq : Int
-  mut state : @cumulo.AppState
+  mut state : @shared.AppState
 } derive(Debug)
 
 ///|
-pub fn ClientStore::new(initial_state : @cumulo.AppState) -> ClientStore {
+pub fn ClientStore::new(initial_state : @shared.AppState) -> ClientStore {
   { seq: 0, state: initial_state }
 }
 
 ///|
-pub fn ClientStore::state(self : ClientStore) -> @cumulo.AppState {
+pub fn ClientStore::state(self : ClientStore) -> @shared.AppState {
   self.state
 }
 
@@ -40,8 +40,8 @@ fn round_trip_message(
 
 ///|
 test "client catches up from server deltas over json" {
-  let server = @server.ServerStore::new(@cumulo.sample_old_state())
-  let client = ClientStore::new(@cumulo.sample_old_state())
+  let server = @server.ServerStore::new(@shared.sample_old_state())
+  let client = ClientStore::new(@shared.sample_old_state())
 
   let actions : Array[@shared.ClientAction] = [
     ChangePage(page=Detail(id="t-2")),
@@ -63,8 +63,8 @@ test "client catches up from server deltas over json" {
 
 ///|
 test "snapshot rehydrates client over json" {
-  let server = @server.ServerStore::new(@cumulo.sample_new_state())
-  let client = ClientStore::new(@cumulo.sample_old_state())
+  let server = @server.ServerStore::new(@shared.sample_new_state())
+  let client = ClientStore::new(@shared.sample_old_state())
   let inbound = round_trip_message(server.snapshot())
   client.apply(inbound)
   assert_true(client.state() == server.state())

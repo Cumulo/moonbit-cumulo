@@ -1,5 +1,4 @@
 import {
-  "tiye/cumulo" @cumulo,
   "tiye/cumulo/recollect" @recollect,
   "tiye/cumulo/examples/todo-sync/shared" @shared,
 }

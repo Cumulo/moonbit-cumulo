@@ -1,4 +1,3 @@
 import {
   "moonbitlang/core/json" @json,
-  "tiye/cumulo/recollect" @recollect,
 }

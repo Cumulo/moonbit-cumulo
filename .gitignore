@@ -7,3 +7,6 @@ dist/
 public/static/*.js
 
 node_modules/*
+
+.yarn/*
+

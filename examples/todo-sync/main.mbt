@@ -1,7 +1,7 @@
 ///|
 fn main {
-  let server = @server.ServerStore::new(@cumulo.sample_old_state())
-  let client = @client.ClientStore::new(@cumulo.sample_old_state())
+  let server = @server.ServerStore::new(@shared.sample_old_state())
+  let client = @client.ClientStore::new(@shared.sample_old_state())
   let actions : Array[@shared.ClientAction] = [
     ChangePage(page=Detail(id="t-2")),
     UpdateDraft(text=Some("Patch moved through SyncMessage JSON")),

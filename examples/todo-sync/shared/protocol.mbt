@@ -1,6 +1,51 @@
 ///|
+pub(all) enum Page {
+  Home
+  Detail(id~ : String)
+} derive(Eq, Debug, FromJson(style="legacy"), ToJson(style="legacy"))
+
+///|
+pub(all) struct Todo {
+  id : String
+  title : String
+  done : Bool
+} derive(Eq, Debug, FromJson, ToJson)
+
+///|
+pub(all) struct AppState {
+  page : Page
+  draft : String?
+  todos : Array[Todo]
+} derive(Eq, Debug, FromJson, ToJson)
+
+///|
+pub fn sample_old_state() -> AppState {
+  {
+    page: Home,
+    draft: None,
+    todos: [
+      { id: "t-1", title: "Design transport tree", done: false },
+      { id: "t-2", title: "Ship basic patch ops", done: false },
+    ],
+  }
+}
+
+///|
+pub fn sample_new_state() -> AppState {
+  {
+    page: Detail(id="t-2"),
+    draft: Some("Patch is computed on Json"),
+    todos: [
+      { id: "t-1", title: "Design transport tree", done: true },
+      { id: "t-2", title: "Ship basic patch ops", done: false },
+      { id: "t-3", title: "Verify round-trip decode", done: false },
+    ],
+  }
+}
+
+///|
 pub(all) enum ClientAction {
-  ChangePage(page~ : @cumulo.Page)
+  ChangePage(page~ : Page)
   UpdateDraft(text~ : String?)
   AddTodo(title~ : String)
   ToggleTodo(id~ : String)
@@ -10,21 +55,21 @@ pub(all) enum ClientAction {
 
 ///|
 pub(all) enum SyncMessage {
-  Snapshot(seq~ : Int, state~ : @cumulo.AppState)
+  Snapshot(seq~ : Int, state~ : AppState)
   Delta(seq~ : Int, patches~ : Array[@recollect.PatchOp])
 } derive(Eq, Debug, FromJson, ToJson)
 
 ///|
 pub fn reduce_state(
-  state : @cumulo.AppState,
+  state : AppState,
   action : ClientAction,
-) -> @cumulo.AppState {
+) -> AppState {
   match action {
     ChangePage(page~) => { ..state, page, }
     UpdateDraft(text~) => { ..state, draft: text }
     AddTodo(title~) => {
       let next_id = "t-\{state.todos.length() + 1}"
-      let todo : @cumulo.Todo = { id: next_id, title, done: false }
+      let todo : Todo = { id: next_id, title, done: false }
       { ..state, todos: state.todos + [todo] }
     }
     ToggleTodo(id~) => {

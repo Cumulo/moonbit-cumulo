@@ -1,6 +1,5 @@
 import {
   "moonbitlang/core/debug" @debug,
-  "tiye/cumulo" @cumulo,
   "tiye/cumulo/examples/todo-sync/client" @client,
   "tiye/cumulo/examples/todo-sync/server" @server,
   "tiye/cumulo/examples/todo-sync/shared" @shared,
