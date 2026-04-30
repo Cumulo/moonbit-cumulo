@@ -56,17 +56,11 @@ pub(all) struct RuntimeApp {
 
 ///|
 pub fn RuntimeApp::new() -> RuntimeApp {
-  {
-    store: FullstackServer::new(@shared.initial_db()),
-    next_op_id: 0,
-  }
+  { store: FullstackServer::new(@shared.initial_db()), next_op_id: 0 }
 }
 
 ///|
-fn RuntimeApp::flush(
-  _self : RuntimeApp,
-  events : Array[SessionEvent],
-) -> Unit {
+fn RuntimeApp::flush(_self : RuntimeApp, events : Array[SessionEvent]) -> Unit {
   for event in events {
     send_to_client(event.sid, event.payload.to_json().stringify())
   }
