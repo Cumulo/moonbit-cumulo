@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/json" @json,
-  "username/cumulo/recollect" @recollect,
-  "username/cumulo/app/shared" @shared,
+  "tiye/cumulo/recollect" @recollect,
+  "tiye/cumulo/app/shared" @shared,
 }
 
 options(

@@ -1,9 +1,9 @@
 import {
   "moonbitlang/core/debug" @debug,
-  "username/cumulo" @cumulo,
-  "username/cumulo/examples/todo-sync/client" @client,
-  "username/cumulo/examples/todo-sync/server" @server,
-  "username/cumulo/examples/todo-sync/shared" @shared,
+  "tiye/cumulo" @cumulo,
+  "tiye/cumulo/examples/todo-sync/client" @client,
+  "tiye/cumulo/examples/todo-sync/server" @server,
+  "tiye/cumulo/examples/todo-sync/shared" @shared,
 }
 
 options(

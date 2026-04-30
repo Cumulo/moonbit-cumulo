@@ -1,8 +1,8 @@
-# username/cumulo
+# tiye/cumulo
 
 MoonBit implementation of a Cumulo-style diff transport.
 
-The structural diff and patch engine now lives in `username/cumulo/recollect`. The root `username/cumulo` package keeps the sample state and the demo-facing types used by the examples in this repository.
+The structural diff and patch engine now lives in `tiye/cumulo/recollect`. The root `tiye/cumulo` package keeps the sample state and the demo-facing types used by the examples in this repository.
 
 This repo also contains a full end-to-end demo with:
 
@@ -16,7 +16,7 @@ This repo also contains a full end-to-end demo with:
 Core packages:
 
 - `recollect`: standalone structural diff/patch engine
-- `username/cumulo`: sample types and compatibility helpers around `recollect`
+- `tiye/cumulo`: sample types and compatibility helpers around `recollect`
 
 Mainline demo packages:
 

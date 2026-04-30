@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "username/cumulo/app/server"
+package "tiye/cumulo/app/server"
 
 import {
   "moonbitlang/core/debug",
-  "username/cumulo/app/shared",
+  "tiye/cumulo/app/shared",
 }
 
 // Values

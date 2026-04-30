@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "username/cumulo/examples/todo-sync/shared"
+package "tiye/cumulo/examples/todo-sync/shared"
 
 import {
   "moonbitlang/core/debug",
   "moonbitlang/core/json",
-  "username/cumulo",
-  "username/cumulo/recollect",
+  "tiye/cumulo",
+  "tiye/cumulo/recollect",
 }
 
 // Values

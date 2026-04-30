@@ -1,6 +1,6 @@
 # recollect
 
-`username/cumulo/recollect` is the standalone structural diff/patch package extracted from the larger Cumulo demo.
+`tiye/cumulo/recollect` is the standalone structural diff/patch package extracted from the larger Cumulo demo.
 
 It is intentionally kept as a leaf package inside this repository so it can be split into its own module later with minimal work.
 
@@ -29,7 +29,7 @@ Add the package to a `moon.pkg` import list:
 
 ```moonbit
 import {
-  "username/cumulo/recollect" @recollect,
+  "tiye/cumulo/recollect" @recollect,
 }
 ```
 
