@@ -4,6 +4,15 @@
   "readme": "README.mbt.md",
   "repository": "",
   "license": "Apache-2.0",
-  "keywords": [],
-  "description": ""
+  "keywords": [
+    "moonbit",
+    "cumulo",
+    "diff",
+    "patch",
+    "realtime",
+    "websocket",
+    "json",
+    "sync"
+  ],
+  "description": "MoonBit Cumulo-style diff transport with a standalone recollect patch engine and fullstack WebSocket demo."
 }
