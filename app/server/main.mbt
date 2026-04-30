@@ -50,14 +50,14 @@ extern "js" fn start_server(
 
 ///|
 pub(all) struct RuntimeApp {
-  mut store : @app_server.FullstackServer
+  mut store : FullstackServer
   mut next_op_id : Int
 }
 
 ///|
 pub fn RuntimeApp::new() -> RuntimeApp {
   {
-    store: @app_server.FullstackServer::new(@shared.initial_db()),
+    store: FullstackServer::new(@shared.initial_db()),
     next_op_id: 0,
   }
 }
@@ -65,7 +65,7 @@ pub fn RuntimeApp::new() -> RuntimeApp {
 ///|
 fn RuntimeApp::flush(
   _self : RuntimeApp,
-  events : Array[@app_server.SessionEvent],
+  events : Array[SessionEvent],
 ) -> Unit {
   for event in events {
     send_to_client(event.sid, event.payload.to_json().stringify())

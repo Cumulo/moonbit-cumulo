@@ -1,9 +1,0 @@
-import {
-  "moonbitlang/core/json" @json,
-  "username/cumulo/app/server" @app_server,
-  "username/cumulo/app/shared" @shared,
-}
-
-options(
-  "is-main": true,
-)

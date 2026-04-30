@@ -21,10 +21,8 @@ Core packages:
 Mainline demo packages:
 
 - `app/shared`: domain model, client protocol, pure updater, twig projection
-- `app/server`: authoritative store with per-session cache and diff broadcast
-- `app/browser`: browser UI and WebSocket client runtime
-- `cmd/server`: Node WebSocket entry
-- `cmd/client`: browser entry built to JS
+- `app/server`: authoritative store plus the Node WebSocket runtime entry
+- `app/browser`: browser UI, WebSocket client runtime, and browser JS entry
 
 Example packages:
 

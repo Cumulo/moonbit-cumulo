@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const projectRoot = path.resolve(__dirname, "..");
-const sourcePath = path.join(projectRoot, "_build/js/debug/build/cmd/client/client.js");
+const sourcePath = path.join(projectRoot, "_build/js/debug/build/app/browser/browser.js");
 const targetDir = path.join(projectRoot, "public/static");
 const targetPath = path.join(targetDir, "client.js");
 

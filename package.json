@@ -2,12 +2,30 @@
   "name": "moon-cumulo-demo",
   "private": true,
   "type": "commonjs",
+  "description": "MoonBit Cumulo-style diff transport demo with the standalone recollect patch engine.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cumulo/moonbit-cumulo.git"
+  },
+  "homepage": "https://github.com/Cumulo/moonbit-cumulo#readme",
+  "bugs": {
+    "url": "https://github.com/Cumulo/moonbit-cumulo/issues"
+  },
+  "keywords": [
+    "moonbit",
+    "cumulo",
+    "recollect",
+    "diff",
+    "patch",
+    "realtime",
+    "websocket"
+  ],
   "scripts": {
-    "prepare:web": "moon build --target js ./cmd/client && node scripts/sync-client.cjs",
+    "prepare:web": "moon build --target js ./app/browser && node scripts/sync-client.cjs",
     "build:web": "npm run prepare:web && vite build",
-    "build:server": "moon build --target js ./cmd/server",
+    "build:server": "moon build --target js ./app/server",
     "build": "npm run build:web && npm run build:server",
-    "serve:server": "node _build/js/debug/build/cmd/server/server.js",
+    "serve:server": "node _build/js/debug/build/app/server/server.js",
     "serve:web": "vite --host 0.0.0.0 --port 5173",
     "dev": "concurrently -k -n ws,web \"npm run build:server && npm run serve:server\" \"npm run serve:web\"",
     "start": "npm run prepare:web && npm run build:server && concurrently -k -n ws,web \"npm:serve:server\" \"npm:serve:web\""

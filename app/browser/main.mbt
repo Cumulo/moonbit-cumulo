@@ -406,3 +406,8 @@ pub fn run_app() -> Unit {
   })
   app.connect()
 }
+
+///|
+fn main {
+  run_app()
+}

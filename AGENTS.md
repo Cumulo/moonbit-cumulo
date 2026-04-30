@@ -17,8 +17,7 @@ You can browse and install extra skills here:
 
 - The current mainline layout is:
   - `recollect/`: standalone diff/patch package intended to stay easy to split
-  - `app/shared`, `app/server`, `app/browser`: fullstack demo packages
-  - `cmd/client`, `cmd/server`: JS entry packages for browser and WebSocket runtime
+  - `app/shared`, `app/server`, `app/browser`: fullstack demo packages, with browser/server entrypoints kept under `app/*`
   - `examples/todo-sync/*`: smaller typed sync walkthrough kept out of the mainline path
 
 - `README.md` is a symlink to `README.mbt.md`. Update `README.mbt.md` when changing the root package README.
@@ -54,7 +53,6 @@ You can browse and install extra skills here:
   - `./examples/todo-sync/shared`
   - `./examples/todo-sync/server`
   - `./examples/todo-sync/client`
-  - `./cmd/main`
 
 - After targeted interface updates, run `moon fmt`. Check the diffs of `.mbti` files to see if the changes are expected.
 
@@ -71,7 +69,7 @@ You can browse and install extra skills here:
 - Runtime layout:
   - Vite serves the page shell on port `5173`
   - the MoonBit backend serves only WebSocket traffic on port `5022`
-  - the browser bundle is generated into `public/static/client.js` by `scripts/sync-client.cjs`
+  - the browser bundle is generated from `app/browser` into `public/static/client.js` by `scripts/sync-client.cjs`
 
 - Treat `public/static/*.js` and `dist/` as generated outputs. Regenerate them instead of editing them by hand.
 

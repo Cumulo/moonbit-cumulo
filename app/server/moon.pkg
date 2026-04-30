@@ -1,4 +1,9 @@
 import {
+  "moonbitlang/core/json" @json,
   "username/cumulo/recollect" @recollect,
   "username/cumulo/app/shared" @shared,
 }
+
+options(
+  "is-main": true,
+)
