@@ -83,6 +83,113 @@ You can browse and install extra skills here:
   prefer assertion tests. You can use `moon coverage analyze > uncovered.log` to
   see which parts of your code are not covered by tests.
 
+## Immutable Data — Core Design Principle
+
+Respo (the UI framework) and Cumulo (the sync layer) are both built around **immutable data**, similar to React + Redux. This is not optional — it is required for correctness.
+
+### Why immutability matters
+
+Respo's render loop skips re-rendering when `store.val == prev_store.val` (structural equality). This optimization only works if the store is genuinely immutable:
+
+```
+raf_loop:
+  if store.val == prev_store.val → skip render  ← breaks if store has mut fields
+  else → diff vdom, patch DOM
+```
+
+If `Store` has `mut` fields, `update()` mutates the store in-place **before** `{ ..store.val }` creates a new reference. At that point `prev_store` already sees the new values through the shared reference, so `==` returns `true` and the render is skipped — the DOM never updates.
+
+### Rules for `app/browser/store.mbt`
+
+✅ **DO**: `Store` struct has no `mut` fields. `update()` returns `(Store, ClientOp?)`.
+
+```moonbit
+struct Store {
+  remote : @shared.ClientView   // no mut
+  ui : UiState                  // no mut
+} derive(Eq)
+
+fn Store::update(self : Store, op : ActionOp) -> (Store, @shared.ClientOp?) {
+  match op {
+    ReceiveDelta(patches) => {
+      let next = @recollect.apply_to_value(self.remote, patches) catch { _ => self.remote }
+      ({ ..self, remote: next }, None)   // return new Store
+    }
+    ...
+  }
+}
+```
+
+✅ **DO**: In `main.mbt`, assign the returned new store:
+
+```moonbit
+let (new_store, maybe_op) = app.store.val.update(op)
+app.store.val = new_store
+```
+
+❌ **DO NOT**: Mutate and then create a shallow copy:
+
+```moonbit
+// WRONG — mutation happens before the copy, prev_store sees the same values
+ignore(app.store.val.update(op))   // mutates self.remote in place
+app.store.val = { ..app.store.val } // shallow copy, fields already mutated
+```
+
+### MoonBit record update syntax
+
+MoonBit's `{ ..self, field: new_value }` creates a new struct with one field replaced — this is the idiomatic way to "update" immutable records. Use it freely:
+
+```moonbit
+{ ..self, ui: { ..self.ui, username: value } }
+```
+
+### Respo debug mode
+
+When chasing render bugs, enable Respo's built-in debug logging in `main.mbt`:
+
+```moonbit
+@respo.set_debug_mode(true)
+```
+
+This logs to the browser console:
+- `[Respo Debug] Render: skipped - store reference unchanged` — `physical_equal` short-circuit
+- `[Respo Debug] Render: skipped - store logically equal` — `==` short-circuit (suspect `mut` misuse if unexpected)
+- `[Respo Debug] Render: starting render cycle` — diff is running
+- `[Respo Debug] Render: N DOM changes` — patches applied
+
+Remove `set_debug_mode(true)` after debugging.
+
+## Starting Dev Services
+
+⚠️ **SIGTSTP pitfall**: Starting Vite with a bare `command &` in zsh can result in the process being in
+`TN` (suspended) state due to terminal job control. The process listens on the port but never responds to
+HTTP requests. Symptoms: `curl` times out, Chrome shows `chrome-error://chromewebdata/`.
+
+**Correct way to start Vite in the background from an agent terminal:**
+
+```bash
+# Use subshell () so the process escapes job control
+(node_modules/.bin/vite > /tmp/vite.log 2>&1 &)
+
+# Or just use async terminal mode (preferred for agents) — never use & in sync mode
+```
+
+**Correct way to start the server:**
+
+```bash
+node _build/js/debug/build/app/server/server.js > .runtime-monitor/server.log 2>&1 &
+```
+
+**Verify services are actually serving (not just listening):**
+
+```bash
+curl -s --max-time 3 http://localhost:5173/ | head -3   # must return HTML, not empty
+lsof -i:5173 | grep LISTEN                               # confirms port is held
+ps aux | grep vite | grep -v grep | grep -v " TN "      # TN = suspended = broken
+```
+
+---
+
 ## Runtime Monitoring (sync chain logs)
 
 The server writes structured logs to `.runtime-monitor/server.log` automatically when running.

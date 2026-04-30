@@ -18,7 +18,8 @@ extern "js" fn browser_error(text : String) -> Unit =
 extern "js" fn socket_url() -> String =
   #| () => {
   #|   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  #|   if (window.location.port === "5173") {
+  #|   const devPorts = ["5173", "5174", "5175", "5176"];
+  #|   if (devPorts.includes(window.location.port)) {
   #|     return `${protocol}://${window.location.hostname}:5022/ws`;
   #|   }
   #|   return `${protocol}://${window.location.host}/ws`;
@@ -71,12 +72,15 @@ fn connect_runtime(
     }
     None => ()
   }
+  let pending_socket : Ref[WebSocket?] = Ref::new(None)
   let socket = connect_socket(
     socket_url(),
     fn() {
       browser_log("ws opened")
-      ignore(app.store.val.update(SocketOpened))
-      app.store.val = { ..app.store.val }
+      // Only expose the socket for sending after the connection is open
+      socket_ref.val = pending_socket.val
+      let (new_store, _) = app.store.val.update(SocketOpened)
+      app.store.val = new_store
       @respo.mark_need_rerender()
     },
     fn(text) {
@@ -86,17 +90,23 @@ fn connect_runtime(
         match payload {
           Snapshot(seq~, store~) => {
             browser_log(
-              "recv Snapshot seq=\{seq} logged_in=\{store.logged_in} bulletins=\{store.bulletins.length()}",
+              "recv Snapshot seq=\{seq} logged_in=\{store.logged_in} bulletins=\{store.bulletins.length()} members=\{store.member_count} viewers=\{store.viewer_count}",
             )
-            ignore(app.store.val.update(ReceiveSnapshot(store)))
-            app.store.val = { ..app.store.val }
+            let (new_store, _) = app.store.val.update(ReceiveSnapshot(store))
+            app.store.val = new_store
             @respo.mark_need_rerender()
+            browser_log("store updated -> render triggered (Snapshot)")
           }
           Delta(seq~, patches~) => {
             browser_log("recv Delta seq=\{seq} patches=\{patches.length()}")
-            ignore(app.store.val.update(ReceiveDelta(patches)))
-            app.store.val = { ..app.store.val }
+            let before = app.store.val.remote
+            let (new_store, _) = app.store.val.update(ReceiveDelta(patches))
+            let after = new_store.remote
+            app.store.val = new_store
             @respo.mark_need_rerender()
+            browser_log(
+              "store updated -> render triggered (Delta) logged_in=\{after.logged_in} bulletins=\{after.bulletins.length()} viewers=\{after.viewer_count} changed=\{before != after}",
+            )
           }
         }
       } catch {
@@ -106,12 +116,13 @@ fn connect_runtime(
     fn() {
       browser_warn("ws closed")
       socket_ref.val = None
-      ignore(app.store.val.update(SocketClosed))
-      app.store.val = { ..app.store.val }
+      pending_socket.val = None
+      let (new_store, _) = app.store.val.update(SocketClosed)
+      app.store.val = new_store
       @respo.mark_need_rerender()
     },
   )
-  socket_ref.val = Some(socket)
+  pending_socket.val = Some(socket)
 }
 
 ///|
@@ -129,15 +140,20 @@ fn main {
       match op {
         ReconnectSocket => {
           browser_log("action: ReconnectSocket")
-          ignore(app.store.val.update(ReconnectSocket))
-          app.store.val = { ..app.store.val }
+          let (new_store, _) = app.store.val.update(ReconnectSocket)
+          app.store.val = new_store
           connect_runtime(app, socket_ref)
         }
         _ => {
-          let maybe_op = app.store.val.update(op)
-          app.store.val = { ..app.store.val }
+          let (new_store, maybe_op) = app.store.val.update(op)
+          app.store.val = new_store
           match maybe_op {
-            Some(client_op) => send_client_op(socket_ref, client_op)
+            Some(client_op) => {
+              browser_log(
+                "action -> server op: \{client_op.to_json().stringify()}",
+              )
+              send_client_op(socket_ref, client_op)
+            }
             None => ()
           }
         }

@@ -71,11 +71,23 @@ pub fn RuntimeApp::new() -> RuntimeApp {
 ///|
 fn RuntimeApp::flush(_self : RuntimeApp, events : Array[SessionEvent]) -> Unit {
   for event in events {
-    let kind = match event.payload {
-      Snapshot(_) => "Snapshot"
-      Delta(patches~, ..) => "Delta(\{patches.length()} patches)"
+    let short_sid = event.sid[:8]
+    match event.payload {
+      Snapshot(seq~, store~) =>
+        monitor_log(
+          "flush -> \{short_sid}… Snapshot seq=\{seq} logged_in=\{store.logged_in} bulletins=\{store.bulletins.length()} members=\{store.member_count} viewers=\{store.viewer_count}",
+        )
+      Delta(seq~, patches~) => {
+        let first = if patches.length() > 0 {
+          patches[0].to_json().stringify()
+        } else {
+          ""
+        }
+        monitor_log(
+          "flush -> \{short_sid}… Delta seq=\{seq} patches=\{patches.length()} first=\{first}",
+        )
+      }
     }
-    monitor_log("flush -> \{event.sid} \{kind}")
     send_to_client(event.sid, event.payload.to_json().stringify())
   }
 }
@@ -108,7 +120,10 @@ fn RuntimeApp::handle_message(
     let op_id = self.next_id()
     monitor_log("op \{op_id} from \{sid}: \{op.to_json().stringify()}")
     let events = self.store.dispatch(sid, op, op_id)
-    monitor_log("op \{op_id} dispatched -> \{events.length()} events")
+    let db = self.store.db()
+    monitor_log(
+      "op \{op_id} dispatched -> \{events.length()} events | db: sessions=\{db.sessions.length()} bulletins=\{db.bulletins.length()} users=\{db.users.length()}",
+    )
     self.flush(events)
   } catch {
     _ => monitor_log("invalid client payload from \{sid}: \{text}")

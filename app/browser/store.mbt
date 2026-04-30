@@ -24,17 +24,21 @@ struct UiState {
 impl Default for UiState with default() -> UiState {
   {
     auth_mode: Login,
-    username: "",
-    password: "",
+    username: "demo",
+    password: "demo",
     bulletin_draft: "",
     connection: Connecting,
   }
 }
 
 ///|
+/// Store is intentionally immutable (no mut fields).
+/// Respo's render loop uses structural equality (==) to skip re-renders when
+/// nothing changed — this only works correctly with immutable data.
+/// Always return a new Store from update() rather than mutating in place.
 struct Store {
-  mut remote : @shared.ClientView
-  mut ui : UiState
+  remote : @shared.ClientView
+  ui : UiState
 } derive(Eq, Debug)
 
 ///|
@@ -64,66 +68,59 @@ enum ActionOp {
 }
 
 ///|
-fn Store::update(self : Store, op : ActionOp) -> @shared.ClientOp? {
+/// Returns (new_store, maybe_client_op). Always pure — no mutation.
+fn Store::update(self : Store, op : ActionOp) -> (Store, @shared.ClientOp?) {
   match op {
-    UpdateUsername(value) => {
-      self.ui = { ..self.ui, username: value }
-      None
-    }
-    UpdatePassword(value) => {
-      self.ui = { ..self.ui, password: value }
-      None
-    }
-    UpdateBulletinDraft(value) => {
-      self.ui = { ..self.ui, bulletin_draft: value }
-      None
-    }
-    SetAuthMode(mode) => {
-      self.ui = { ..self.ui, auth_mode: mode }
-      None
-    }
-    FillDemo => {
-      self.ui = {
-        ..self.ui,
-        auth_mode: Login,
-        username: "demo",
-        password: "demo",
-      }
-      None
-    }
-    RouteHome => Some(RouteChange(route=Home))
-    RouteMembers => Some(RouteChange(route=Members))
+    UpdateUsername(value) =>
+      ({ ..self, ui: { ..self.ui, username: value } }, None)
+    UpdatePassword(value) =>
+      ({ ..self, ui: { ..self.ui, password: value } }, None)
+    UpdateBulletinDraft(value) =>
+      ({ ..self, ui: { ..self.ui, bulletin_draft: value } }, None)
+    SetAuthMode(mode) => ({ ..self, ui: { ..self.ui, auth_mode: mode } }, None)
+    FillDemo =>
+      (
+        {
+          ..self,
+          ui: {
+            ..self.ui,
+            auth_mode: Login,
+            username: "demo",
+            password: "demo",
+          },
+        },
+        None,
+      )
+    RouteHome => (self, Some(RouteChange(route=Home)))
+    RouteMembers => (self, Some(RouteChange(route=Members)))
     LogIn =>
-      Some(UserLogIn(username=self.ui.username, password=self.ui.password))
+      (
+        self,
+        Some(UserLogIn(username=self.ui.username, password=self.ui.password)),
+      )
     SignUp =>
-      Some(UserSignUp(username=self.ui.username, password=self.ui.password))
-    LogOut => Some(UserLogOut)
+      (
+        self,
+        Some(UserSignUp(username=self.ui.username, password=self.ui.password)),
+      )
+    LogOut => (self, Some(UserLogOut))
     PostBulletin => {
       let text = self.ui.bulletin_draft
       if text == "" {
-        None
+        (self, None)
       } else {
-        self.ui = { ..self.ui, bulletin_draft: "" }
-        Some(BulletinPost(text=text))
+        (
+          { ..self, ui: { ..self.ui, bulletin_draft: "" } },
+          Some(BulletinPost(text~)),
+        )
       }
     }
-    ReconnectSocket => {
-      self.ui = { ..self.ui, connection: Connecting }
-      None
-    }
-    ClearMessage(id) => Some(SessionRemoveMessage(id=id))
-    SocketOpened => {
-      self.ui = { ..self.ui, connection: Open }
-      None
-    }
-    SocketClosed => {
-      self.ui = { ..self.ui, connection: Closed }
-      None
-    }
-    ReceiveSnapshot(store) => {
-      self.remote = store
-      None
-    }
+    ReconnectSocket =>
+      ({ ..self, ui: { ..self.ui, connection: Connecting } }, None)
+    ClearMessage(id) => (self, Some(SessionRemoveMessage(id~)))
+    SocketOpened => ({ ..self, ui: { ..self.ui, connection: Open } }, None)
+    SocketClosed => ({ ..self, ui: { ..self.ui, connection: Closed } }, None)
+    ReceiveSnapshot(remote) => ({ ..self, remote, }, None)
     ReceiveDelta(patches) => {
       let next_remote : @shared.ClientView = @recollect.apply_to_value(
         self.remote,
@@ -131,8 +128,7 @@ fn Store::update(self : Store, op : ActionOp) -> @shared.ClientOp? {
       ) catch {
         _ => self.remote
       }
-      self.remote = next_remote
-      None
+      ({ ..self, remote: next_remote }, None)
     }
   }
 }
