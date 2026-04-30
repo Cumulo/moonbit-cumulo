@@ -3,8 +3,17 @@
 type NodeRuntime
 
 ///|
-extern "js" fn server_log(text : String) -> Unit =
-  #| (text) => console.log(text)
+extern "js" fn monitor_log(text : String) -> Unit =
+  #| (text) => {
+  #|   const fs = require("fs");
+  #|   const path = require("path");
+  #|   const dir = path.join(process.cwd(), ".runtime-monitor");
+  #|   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  #|   const file = path.join(dir, "server.log");
+  #|   const line = new Date().toISOString() + "  " + text + "\n";
+  #|   fs.appendFileSync(file, line);
+  #|   console.log("[server] " + text);
+  #| }
 
 ///|
 extern "js" fn send_to_client(sid : String, text : String) -> Unit =
@@ -62,6 +71,11 @@ pub fn RuntimeApp::new() -> RuntimeApp {
 ///|
 fn RuntimeApp::flush(_self : RuntimeApp, events : Array[SessionEvent]) -> Unit {
   for event in events {
+    let kind = match event.payload {
+      Snapshot(_) => "Snapshot"
+      Delta(patches~, ..) => "Delta(\{patches.length()} patches)"
+    }
+    monitor_log("flush -> \{event.sid} \{kind}")
     send_to_client(event.sid, event.payload.to_json().stringify())
   }
 }
@@ -74,8 +88,12 @@ fn RuntimeApp::next_id(self : RuntimeApp) -> String {
 
 ///|
 fn RuntimeApp::handle_open(self : RuntimeApp, sid : String) -> Unit {
-  server_log("connect \{sid}")
-  self.flush(self.store.connect(sid))
+  monitor_log("connect \{sid}")
+  let events = self.store.connect(sid)
+  monitor_log(
+    "connect sync -> \{events.length()} events for \{self.store.db.sessions.length()} sessions",
+  )
+  self.flush(events)
 }
 
 ///|
@@ -88,16 +106,23 @@ fn RuntimeApp::handle_message(
     let parsed = @json.parse(text)
     let op : @shared.ClientOp = @json.from_json(parsed)
     let op_id = self.next_id()
-    self.flush(self.store.dispatch(sid, op, op_id))
+    monitor_log("op \{op_id} from \{sid}: \{op.to_json().stringify()}")
+    let events = self.store.dispatch(sid, op, op_id)
+    monitor_log("op \{op_id} dispatched -> \{events.length()} events")
+    self.flush(events)
   } catch {
-    _ => server_log("invalid client payload from \{sid}")
+    _ => monitor_log("invalid client payload from \{sid}: \{text}")
   }
 }
 
 ///|
 fn RuntimeApp::handle_close(self : RuntimeApp, sid : String) -> Unit {
-  server_log("disconnect \{sid}")
-  self.flush(self.store.disconnect(sid))
+  monitor_log("disconnect \{sid}")
+  let events = self.store.disconnect(sid)
+  monitor_log(
+    "disconnect sync -> \{events.length()} events for \{self.store.db.sessions.length()} remaining sessions",
+  )
+  self.flush(events)
 }
 
 ///|

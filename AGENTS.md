@@ -59,12 +59,14 @@ You can browse and install extra skills here:
 - Run `moon test` to check tests pass. MoonBit supports snapshot testing; when
   changes affect outputs, run `moon test --update` to refresh snapshots.
 
+- This project uses **yarn** (not npm). Always use `yarn` to install dependencies and run scripts.
+
 - Useful validation commands in this repo:
   - `moon test ./recollect`
   - `moon test ./app/shared ./app/server`
   - `moon test ./examples/todo-sync/client`
   - `moon run ./examples/todo-sync`
-  - `npm run build`
+  - `yarn build`
 
 - Runtime layout:
   - Vite serves the page shell on port `5173`
@@ -80,3 +82,85 @@ You can browse and install extra skills here:
   behavior. For solid, well-defined results (e.g. scientific computations),
   prefer assertion tests. You can use `moon coverage analyze > uncovered.log` to
   see which parts of your code are not covered by tests.
+
+## Runtime Monitoring (sync chain logs)
+
+The server writes structured logs to `.runtime-monitor/server.log` automatically when running.
+The browser prints logs to the DevTools console under the `[cumulo]` prefix.
+
+### Backend logs
+
+Start the server normally:
+
+```bash
+yarn node _build/js/debug/build/app/server/server.js
+```
+
+Logs are appended to `.runtime-monitor/server.log` (directory is created on first use, excluded from git).
+Each line is `ISO-timestamp  <message>`. Tail in real-time:
+
+```bash
+tail -f .runtime-monitor/server.log
+```
+
+Key log lines to look for:
+
+| Pattern                                   | Meaning                            |
+| ----------------------------------------- | ---------------------------------- |
+| `connect <sid>`                           | Client WebSocket opened            |
+| `connect sync -> N events for M sessions` | Snapshot dispatched after connect  |
+| `op <id> from <sid>: {...}`               | Client operation received          |
+| `op <id> dispatched -> N events`          | How many clients were notified     |
+| `flush -> <sid> Snapshot`                 | Full state sent to a client        |
+| `flush -> <sid> Delta(N patches)`         | Incremental patch sent to a client |
+| `disconnect <sid>`                        | Client WebSocket closed            |
+| `invalid client payload from <sid>:`      | Malformed message received         |
+
+### Browser console logs
+
+Open DevTools → Console and filter by `[cumulo]`.
+
+| Message                                      | Meaning                       |
+| -------------------------------------------- | ----------------------------- |
+| `[cumulo] ws opened`                         | WebSocket connected to server |
+| `[cumulo] recv Snapshot seq=N ...`           | Full state snapshot received  |
+| `[cumulo] recv Delta seq=N patches=N`        | Incremental patch received    |
+| `[cumulo] send op: {...}`                    | User action sent to server    |
+| `[cumulo] ws closed`                         | WebSocket disconnected        |
+| `[cumulo] failed to parse server event: ...` | Protocol parse error          |
+
+Capture with chrome-devtools CLI:
+
+```bash
+# List all cumulo messages
+chrome-devtools list_console_messages | grep '\[cumulo\]'
+
+# List only errors
+chrome-devtools list_console_messages --types error
+
+# Get full message by id
+chrome-devtools get_console_message <msgid>
+```
+
+### Typical healthy sync sequence
+
+1. Server: `connect <sid>` → `connect sync -> 1 events` → `flush -> <sid> Snapshot`
+2. Browser: `ws opened` → `recv Snapshot seq=0 logged_in=false`
+3. User logs in → Browser: `send op: {"Login":...}` → Server: `op 1 from <sid>: ...` → `flush -> <sid> Delta(N patches)`
+4. Browser: `recv Delta seq=1 patches=N`
+
+### After editing server or browser source
+
+```bash
+# Rebuild server
+moon build --target js ./app/server
+
+# Rebuild browser + sync static file
+moon build --target js ./app/browser && node scripts/sync-client.cjs
+
+# Restart server
+kill $(pgrep -f 'server.js') 2>/dev/null; yarn node _build/js/debug/build/app/server/server.js &
+
+# Refresh browser
+chrome-devtools navigate_page --url http://localhost:5173/ --ignoreCache
+```

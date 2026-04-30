@@ -60,10 +60,7 @@ pub(all) enum SyncMessage {
 } derive(Eq, Debug, FromJson, ToJson)
 
 ///|
-pub fn reduce_state(
-  state : AppState,
-  action : ClientAction,
-) -> AppState {
+pub fn reduce_state(state : AppState, action : ClientAction) -> AppState {
   match action {
     ChangePage(page~) => { ..state, page, }
     UpdateDraft(text~) => { ..state, draft: text }

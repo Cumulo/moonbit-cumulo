@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+/* Google Fonts removed — using system font stacks */
 
 :root {
   --bg: #f6efe4;
@@ -37,7 +37,7 @@ body {
 }
 
 body {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 button,
@@ -73,7 +73,7 @@ input {
 }
 
 .hero h1 {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(2.2rem, 5vw, 4.3rem);
   line-height: 0.95;
   margin: 8px 0 16px;
@@ -87,69 +87,6 @@ input {
   margin: 0;
 }
 
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.76rem;
-  color: var(--accent);
-  margin: 0;
-}
-
-.hero-meta {
-  display: grid;
-  gap: 12px;
-  align-content: start;
-  justify-items: end;
-}
-
-.hero-stats {
-  min-width: 120px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(15, 118, 110, 0.12);
-  text-align: right;
-}
-
-.hero-stats strong {
-  display: block;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1.7rem;
-}
-
-.hero-stats span,
-.nav-user,
-.tips p,
-.content-panel p,
-.member-card p,
-.bulletin-card p,
-.field span,
-.auth-panel p {
-  color: var(--muted);
-}
-
-.status-badge {
-  padding: 10px 14px;
-  border-radius: 999px;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-
-.status-badge.is-live {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.status-badge.is-connecting {
-  background: rgba(201, 138, 37, 0.14);
-  color: #946200;
-}
-
-.status-badge.is-closed {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
 .nav {
   display: flex;
   gap: 10px;
@@ -157,11 +94,6 @@ input {
   margin: 18px 0;
   padding: 10px;
   border-radius: 22px;
-}
-
-.nav-user {
-  margin-left: auto;
-  padding-right: 8px;
 }
 
 .nav-link,
@@ -219,19 +151,6 @@ input {
   transform: translateY(-1px);
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 18px;
-}
-
-.sidebar,
-.main {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-}
-
 .panel {
   border-radius: 24px;
   padding: 22px;
@@ -239,153 +158,25 @@ input {
 
 .auth-panel h2,
 .content-panel h2 {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   margin: 8px 0 16px;
   font-size: 1.8rem;
 }
 
-.tabs,
-.auth-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.field {
-  display: grid;
-  gap: 8px;
-  margin: 14px 0;
-}
-
-.field input {
-  width: 100%;
-  border: 1px solid rgba(31, 41, 51, 0.14);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--text);
-  border-radius: 16px;
-  padding: 14px 15px;
-}
-
-.toast {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: start;
-  padding: 16px 18px;
-  border-radius: 18px;
-  margin-bottom: 12px;
-  border: 1px solid transparent;
-}
-
-.toast p,
-.toast .toast-title {
-  margin: 0;
-}
-
-.toast .toast-title {
+.hero-stats strong {
   display: block;
-  margin-bottom: 6px;
-}
-
-.toast.is-info {
-  background: var(--accent-soft);
-  border-color: rgba(15, 118, 110, 0.18);
-}
-
-.toast.is-error {
-  background: var(--danger-soft);
-  border-color: rgba(191, 77, 40, 0.18);
-}
-
-.feature-grid,
-.member-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-}
-
-.feature-grid > *,
-.member-card,
-.bulletin-card {
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid rgba(31, 41, 51, 0.08);
-}
-
-.feature-grid h3,
-.member-card h3 {
-  margin: 0 0 10px;
-  font-size: 1rem;
-}
-
-.board-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-
-.board-count {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.board-note {
-  margin: 0 0 16px;
-}
-
-.bulletin-composer {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.bulletin-list {
-  display: grid;
-  gap: 12px;
-}
-
-.bulletin-card {
-  display: grid;
-  gap: 8px;
-}
-
-.bulletin-card.is-empty {
-  text-align: center;
-}
-
-.bulletin-meta {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.78rem;
-  margin: 0;
-}
-
-.bulletin-text {
-  color: var(--text) !important;
-  margin: 0;
-  line-height: 1.6;
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 1.7rem;
 }
 
 @media (max-width: 920px) {
-  .hero,
-  .layout {
-    grid-template-columns: 1fr;
+  .hero {
     display: grid;
-  }
-
-  .hero-meta {
-    justify-items: start;
+    grid-template-columns: 1fr;
   }
 
   .nav {
     flex-wrap: wrap;
   }
-
-  .nav-user {
-    margin-left: 0;
-    width: 100%;
-  }
 }
+
