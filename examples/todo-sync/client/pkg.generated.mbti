@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/cumulo/examples/todo-sync/client"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "username/cumulo",
+  "username/cumulo/examples/todo-sync/shared",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct ClientStore {
+  mut seq : Int
+  mut state : @cumulo.AppState
+} derive(@debug.Debug)
+pub fn ClientStore::apply(Self, @shared.SyncMessage) -> Unit raise @json.JsonDecodeError
+pub fn ClientStore::new(@cumulo.AppState) -> Self
+pub fn ClientStore::state(Self) -> @cumulo.AppState
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,103 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/cumulo/app/shared"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "username/cumulo/recollect",
+}
+
+// Values
+pub fn connect_session(AppDb, String) -> AppDb
+
+pub fn disconnect_session(AppDb, String) -> AppDb
+
+pub fn empty_view(String) -> ClientView
+
+pub fn initial_db() -> AppDb
+
+pub fn twig_container(AppDb, SessionRecord) -> ClientView
+
+pub fn updater(AppDb, String, ClientOp, String) -> AppDb
+
+// Errors
+
+// Types and methods
+pub(all) struct AppDb {
+  users : Map[String, UserRecord]
+  bulletins : Array[BulletinEntry]
+  sessions : Map[String, SessionRecord]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct BulletinEntry {
+  id : String
+  author : String
+  text : String
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) enum ClientOp {
+  UserLogIn(username~ : String, password~ : String)
+  UserSignUp(username~ : String, password~ : String)
+  UserLogOut
+  BulletinPost(text~ : String)
+  RouteChange(route~ : Route)
+  SessionRemoveMessage(id~ : String)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct ClientView {
+  session_id : String
+  route : Route
+  logged_in : Bool
+  accent : String
+  welcome : String
+  current_user : MemberView?
+  bulletins : Array[BulletinEntry]
+  members : Array[MemberView]
+  member_count : Int
+  viewer_count : Int
+  messages : Array[FlashMessage]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct FlashMessage {
+  id : String
+  text : String
+  kind : MessageKind
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct MemberView {
+  id : String
+  name : String
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) enum MessageKind {
+  Info
+  Error
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) enum Route {
+  Home
+  Members
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) enum ServerEvent {
+  Snapshot(seq~ : Int, store~ : ClientView)
+  Delta(seq~ : Int, patches~ : Array[@recollect.PatchOp])
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct SessionRecord {
+  id : String
+  user_id : String?
+  router : Route
+  messages : Array[FlashMessage]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct UserRecord {
+  id : String
+  name : String
+  password : String
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

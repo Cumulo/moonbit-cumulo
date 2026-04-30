@@ -1,0 +1,9 @@
+import {
+  "username/cumulo" @lib,
+  "username/cumulo/recollect" @recollect,
+  "moonbitlang/core/debug" @debug,
+}
+
+options(
+  "is-main": true,
+)

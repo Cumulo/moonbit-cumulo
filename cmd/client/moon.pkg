@@ -1,0 +1,7 @@
+import {
+  "username/cumulo/app/browser" @browser,
+}
+
+options(
+  "is-main": true,
+)

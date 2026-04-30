@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/cumulo/app/server"
+
+import {
+  "moonbitlang/core/debug",
+  "username/cumulo/app/shared",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct FullstackServer {
+  mut seq : Int
+  mut db : @shared.AppDb
+  mut caches : Map[String, @shared.ClientView]
+} derive(@debug.Debug)
+pub fn FullstackServer::connect(Self, String) -> Array[SessionEvent]
+pub fn FullstackServer::db(Self) -> @shared.AppDb
+pub fn FullstackServer::disconnect(Self, String) -> Array[SessionEvent]
+pub fn FullstackServer::dispatch(Self, String, @shared.ClientOp, String) -> Array[SessionEvent]
+pub fn FullstackServer::new(@shared.AppDb) -> Self
+
+pub(all) struct SessionEvent {
+  sid : String
+  payload : @shared.ServerEvent
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

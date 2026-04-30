@@ -1,0 +1,9 @@
+.DS_Store
+_build/
+.mooncakes/
+.moonagent/
+tmp/*
+dist/
+public/static/*.js
+
+node_modules/*

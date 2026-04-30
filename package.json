@@ -1,0 +1,22 @@
+{
+  "name": "moon-cumulo-demo",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "prepare:web": "moon build --target js ./cmd/client && node scripts/sync-client.cjs",
+    "build:web": "npm run prepare:web && vite build",
+    "build:server": "moon build --target js ./cmd/server",
+    "build": "npm run build:web && npm run build:server",
+    "serve:server": "node _build/js/debug/build/cmd/server/server.js",
+    "serve:web": "vite --host 0.0.0.0 --port 5173",
+    "dev": "concurrently -k -n ws,web \"npm run build:server && npm run serve:server\" \"npm run serve:web\"",
+    "start": "npm run prepare:web && npm run build:server && concurrently -k -n ws,web \"npm:serve:server\" \"npm:serve:web\""
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "vite": "^6.3.5"
+  }
+}

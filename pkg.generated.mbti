@@ -1,0 +1,48 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/cumulo"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+  "username/cumulo/recollect",
+}
+
+// Values
+pub fn apply_patch(Json, @recollect.PatchOp) -> Json
+
+pub fn apply_patches(Json, Array[@recollect.PatchOp]) -> Json
+
+pub fn[T : ToJson + @json.FromJson] apply_to_value(T, Array[@recollect.PatchOp]) -> T raise @json.JsonDecodeError
+
+pub fn diff_json(Json, Json) -> Array[@recollect.PatchOp]
+
+pub fn[T : ToJson] diff_value(T, T) -> Array[@recollect.PatchOp]
+
+pub fn sample_new_state() -> AppState
+
+pub fn sample_old_state() -> AppState
+
+// Errors
+
+// Types and methods
+pub(all) struct AppState {
+  page : Page
+  draft : String?
+  todos : Array[Todo]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) enum Page {
+  Home
+  Detail(id~ : String)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Todo {
+  id : String
+  title : String
+  done : Bool
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

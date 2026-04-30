@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/cumulo/examples/todo-sync/server"
+
+import {
+  "moonbitlang/core/debug",
+  "username/cumulo",
+  "username/cumulo/examples/todo-sync/shared",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct ServerStore {
+  mut seq : Int
+  mut state : @cumulo.AppState
+} derive(@debug.Debug)
+pub fn ServerStore::dispatch(Self, @shared.ClientAction) -> @shared.SyncMessage
+pub fn ServerStore::new(@cumulo.AppState) -> Self
+pub fn ServerStore::snapshot(Self) -> @shared.SyncMessage
+pub fn ServerStore::state(Self) -> @cumulo.AppState
+
+// Type aliases
+
+// Traits
+
