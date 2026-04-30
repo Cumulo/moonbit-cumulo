@@ -1,0 +1,44 @@
+name: check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: hustcer/setup-moonbit@v1
+        # with:
+        #   version: "nightly"
+
+      # moon.mod.json uses a local path dep for tiye/respo during development.
+      # Switch to the published version for CI where the sibling repo is not present.
+      - name: Patch local path dep for CI
+        run: |
+          python3 - <<'EOF'
+          import re
+          with open('moon.mod.json') as f:
+              content = f.read()
+          # Uncomment the pinned published version
+          content = content.replace('    // "tiye/respo": "0.3.3",', '    "tiye/respo": "0.3.3",')
+          # Remove the local path block (3 lines)
+          content = re.sub(r'    "tiye/respo": \{\n      "path": "[^"]+"\n    \},\n', '', content)
+          with open('moon.mod.json', 'w') as f:
+              f.write(content)
+          print(open('moon.mod.json').read())
+          EOF
+
+      - name: moon check
+        run: moon update && moon version && moon check --target js
+
+      - name: moon test (non-browser packages)
+        run: moon test ./recollect ./app/shared ./app/server
+
+      - name: moon build (browser JS bundle)
+        run: moon build --target js --debug ./app/browser
